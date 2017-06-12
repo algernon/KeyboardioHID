@@ -125,6 +125,7 @@ void Keyboard_::begin(void) {
   // while the sender is resetted.
   releaseAll();
   sendReportUnchecked();
+  BootKeyboard.begin();
 }
 
 
@@ -139,6 +140,10 @@ int Keyboard_::sendReportUnchecked(void) {
 
 
 int Keyboard_::sendReport(void) {
+  if (BootKeyboard.getProtocol() == HID_BOOT_PROTOCOL ) {
+    return BootKeyboard.sendReport(k);
+  }
+
   // If the last report is different than the current report, then we need to send a report.
   // We guard sendReport like this so that calling code doesn't end up spamming the host with empty reports
   // if sendReport is called in a tight loop.
@@ -156,6 +161,9 @@ int Keyboard_::sendReport(void) {
  * Returns false in all other cases
  * */
 boolean Keyboard_::isModifierActive(uint8_t k) {
+  if (BootKeyboard.getProtocol() == HID_BOOT_PROTOCOL ) {
+	return BootKeyboard.isModifierActive(k);
+  }
   if (k >= HID_KEYBOARD_FIRST_MODIFIER && k <= HID_KEYBOARD_LAST_MODIFIER) {
     k = k - HID_KEYBOARD_FIRST_MODIFIER;
     return !!(keyReport.modifiers & (1 << k));
@@ -175,6 +183,9 @@ boolean Keyboard_::wasModifierActive(uint8_t k) {
 }
 
 size_t Keyboard_::press(uint8_t k) {
+  if (BootKeyboard.getProtocol() == HID_BOOT_PROTOCOL ) {
+	return BootKeyboard.press(k);
+  }
   // If the key is in the range of 'printable' keys
   if (k <= HID_LAST_KEY) {
     uint8_t bit = 1 << (uint8_t(k) % 8);
@@ -195,6 +206,9 @@ size_t Keyboard_::press(uint8_t k) {
 }
 
 size_t Keyboard_::release(uint8_t k) {
+  if (BootKeyboard.getProtocol() == HID_BOOT_PROTOCOL ) {
+	return BootKeyboard.release(k);
+  }
   // If we're releasing a printable key
   if (k <= HID_LAST_KEY) {
     uint8_t bit = 1 << (k % 8);
@@ -216,6 +230,10 @@ size_t Keyboard_::release(uint8_t k) {
 
 void Keyboard_::releaseAll(void) {
   // Release all keys
+  if (BootKeyboard.getProtocol() == HID_BOOT_PROTOCOL ) {
+    return BootKeyboard.releaseAll();
+  }
+
   memset(&keyReport.allkeys, 0x00, sizeof(keyReport.allkeys));
 }
 
