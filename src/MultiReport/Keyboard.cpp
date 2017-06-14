@@ -24,6 +24,8 @@ THE SOFTWARE.
 #include "Keyboard.h"
 #include "DescriptorPrimitives.h"
 
+#include "BootKeyboard/BootKeyboard.h"
+
 static const uint8_t _hidMultiReportDescriptorKeyboard[] PROGMEM = {
   //  NKRO Keyboard
   D_USAGE_PAGE, D_PAGE_GENERIC_DESKTOP,
@@ -141,7 +143,7 @@ int Keyboard_::sendReportUnchecked(void) {
 
 int Keyboard_::sendReport(void) {
   if (BootKeyboard.getProtocol() == HID_BOOT_PROTOCOL ) {
-    return BootKeyboard.sendReport(k);
+    return BootKeyboard.sendReport();
   }
 
   // If the last report is different than the current report, then we need to send a report.
@@ -161,9 +163,11 @@ int Keyboard_::sendReport(void) {
  * Returns false in all other cases
  * */
 boolean Keyboard_::isModifierActive(uint8_t k) {
+  #if 0
   if (BootKeyboard.getProtocol() == HID_BOOT_PROTOCOL ) {
-	return BootKeyboard.isModifierActive(k);
+    return BootKeyboard.isModifierActive(k);
   }
+  #endif
   if (k >= HID_KEYBOARD_FIRST_MODIFIER && k <= HID_KEYBOARD_LAST_MODIFIER) {
     k = k - HID_KEYBOARD_FIRST_MODIFIER;
     return !!(keyReport.modifiers & (1 << k));
